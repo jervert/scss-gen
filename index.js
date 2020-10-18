@@ -46,7 +46,7 @@ function watcher(event, path) {
   });
 }
 
-function init() {
+function initSass() {
   buildCss();
   chokidar.watch(scss.watch, {
     ignoreInitial: true
@@ -58,7 +58,7 @@ function createDist() {
     if (error) {
       log(error);
     } else {
-      init();
+      initSass();
     }
   });
 }
