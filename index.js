@@ -2,27 +2,39 @@ const chokidar = require('chokidar');
 const sass = require('node-sass');
 const log = require('fancy-log');
 const del = require('del');
-const { writeFileSync, mkdir } = require('fs');
+const { writeFile, mkdir } = require('fs');
 const { join } = require('path');
 const notifier = require('node-notifier');
 const { scss } = require('./config.json')
+
+function sassNotifyResult(params = {}) {
+  log(params.message);
+  notifier.notify({
+    title: `SCSS ${params.isError ? 'Error' : 'Success'}`,
+    message: params.path ? `${params.event} ${params.path}` : 'First build',
+    icon: join(__dirname, `icons/icons8-${params.isError ? 'cancel': 'checked'}-512.png`)
+  });
+}
+
+function afterSassRender(result, params) {
+  writeFile(scss.dest, result.css, error => {
+    if (error) {
+      sassNotifyResult(Object.assign({}, params, { message: error, isError: true }));
+    } else {
+      sassNotifyResult(Object.assign({}, params, { message: `Generated: ${scss.dest}`, isError: false }));
+    }
+  }); 
+}
 
 function buildCss(params = {}) {
   sass.render({
     file: scss.src,
   }, function(error, result) {
     if (error) {
-      log(error);
+      sassNotifyResult(Object.assign({}, params, { message: error, isError: true }));
     } else {
-      writeFileSync(scss.dest, result.css);
-      log(`Generated: ${scss.dest}`);
+      afterSassRender(result, params);
     }
-
-    notifier.notify({
-      title: `SCSS ${error ? 'Error' : 'Success'}`,
-      message: params.path ? `${params.event} ${params.path}` : 'First build',
-      icon: join(__dirname, `icons/icons8-${error ? 'cancel': 'checked'}-512.png`)
-    });
   });
 }
 
