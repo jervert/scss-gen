@@ -2,7 +2,7 @@ const chokidar = require('chokidar');
 const sass = require('node-sass');
 const log = require('fancy-log');
 const del = require('del');
-const { writeFileSync, mkdir, readdir, unlink } = require('fs');
+const { writeFileSync, mkdir } = require('fs');
 const { join } = require('path');
 const notifier = require('node-notifier');
 const { scss } = require('./config.json')
@@ -51,12 +51,6 @@ function createDist() {
   });
 }
 
-readdir('./dist', (error, files) => {
-  if (error) {
-    log(error);
-  } else {
-    del('./dist/**/*', {
-      force: true
-    }).then(createDist);
-  }
-});
+del('./dist/**/*', {
+  force: true
+}).then(createDist);
