@@ -1,14 +1,15 @@
 const chokidar = require('chokidar');
 const sass = require('node-sass');
 const log = require('fancy-log');
-const { writeFileSync } = require('fs');
+const del = require('del');
+const { writeFileSync, mkdir, readdir, unlink } = require('fs');
 const { join } = require('path');
 const notifier = require('node-notifier');
-const { scss } = require('./config.js')
- 
+const { scss } = require('./config.json')
+
 function buildCss(params = {}) {
   sass.render({
-    file: scss.main,
+    file: scss.src,
   }, function(error, result) {
     if (error) {
       log(error);
@@ -33,8 +34,29 @@ function watcher(event, path) {
   });
 }
 
-buildCss();
+function init() {
+  buildCss();
+  chokidar.watch(scss.watch, {
+    ignoreInitial: true
+  }).on('all', watcher);
+}
 
-chokidar.watch(scss.watch, {
-  ignoreInitial: true
-}).on('all', watcher);
+function createDist() {
+  mkdir('./dist/css', { recursive: true }, error => {
+    if (error) {
+      log(error);
+    } else {
+      init();
+    }
+  });
+}
+
+readdir('./dist', (error, files) => {
+  if (error) {
+    log(error);
+  } else {
+    del('./dist/**/*', {
+      force: true
+    }).then(createDist);
+  }
+});
