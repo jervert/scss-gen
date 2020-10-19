@@ -1,4 +1,5 @@
 const { join } = require('path');
+const { TITLE_SUCCESS, TITLE_ERROR, MESSAGE_FIRST_BUILD } = require('../node/constants');
 const sassNotifyResult = require('../node/sass.notify-result');
 
 const ICON_ERROR = join(
@@ -9,9 +10,6 @@ const ICON_SUCCESS = join(
   __dirname,
   '../node/icons/icons8-checked-512.png'
 );
-const TITLE_ERROR = 'SCSS error';
-const TITLE_SUCCESS = 'SCSS success';
-const MESSAGE_FIRST_BUILD = 'First build';
 
 test('sass result error, first build', () => {
   const result = sassNotifyResult({
