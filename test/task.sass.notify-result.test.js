@@ -1,6 +1,6 @@
 const { join } = require('path');
 const { TITLE_SUCCESS, TITLE_ERROR, MESSAGE_FIRST_BUILD } = require('../node/constants');
-const sassNotifyResult = require('../node/sass.notify-result');
+const sassNotifyResult = require('../node/task.sass.notify-result');
 
 const ICON_ERROR = join(
   __dirname,
