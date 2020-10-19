@@ -1,11 +1,13 @@
 const chokidar = require('chokidar');
 const sass = require('node-sass');
 const log = require('fancy-log');
-const del = require('del');
 const notifier = require('node-notifier');
-const { writeFile, mkdir } = require('fs');
+const { join } = require('path');
+const { writeFile } = require('fs');
 const { scss } = require('./config.json');
 const sassNotifyResult = require('./node/sass.notify-result');
+const clean = require('./node/task.dist.clean');
+const createDist = require('./node/task.dist.create');
 const { TITLE_ERROR, MESSAGE_CLEANED_DIST } = require('./node/constants');
 
 
@@ -61,17 +63,15 @@ function initSass() {
   }).on('all', watcher);
 }
 
-function createDist() {
-  mkdir('./dist/css', { recursive: true }, error => {
-    if (error) {
-      log.error(error);
-    } else {
-      log.info(MESSAGE_CLEANED_DIST);
-      initSass();
-    }
-  });
-}
-
-del('./dist/**/*', {
-  force: true
-}).then(createDist);
+clean(join(__dirname, 'dist/**/*'), () => {
+    log.info(MESSAGE_CLEANED_DIST);
+    const distScss = join(__dirname, 'dist/css');
+    createDist(distScss, error => {
+      if (error) {
+        log.error(error);
+      } else {
+        log.info(`Created dir: ${distScss}`);
+        initSass();
+      }
+    });
+})
