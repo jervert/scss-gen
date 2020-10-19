@@ -7,8 +7,10 @@ const { writeFile } = require('fs');
 const { scss } = require('./config.json');
 const sassNotifyResult = require('./node/sass.notify-result');
 const clean = require('./node/task.dist.clean');
+const cbClean = require('./node/task.dist.clean.cb');
 const createDist = require('./node/task.dist.create');
-const { TITLE_ERROR, MESSAGE_CLEANED_DIST } = require('./node/constants');
+const cbCreateDist = require('./node/task.dist.create.cb');
+const { TITLE_ERROR } = require('./node/constants');
 
 
 function afterSassRender(result, params) {
@@ -63,15 +65,11 @@ function initSass() {
   }).on('all', watcher);
 }
 
-clean(join(__dirname, 'dist/**/*'), () => {
-    log.info(MESSAGE_CLEANED_DIST);
-    const distScss = join(__dirname, 'dist/css');
-    createDist(distScss, error => {
-      if (error) {
-        log.error(error);
-      } else {
-        log.info(`Created dir: ${distScss}`);
-        initSass();
-      }
-    });
-})
+const distScss = join(__dirname, './dist/css');
+
+clean(join(__dirname, 'dist/**/*'), cbClean({
+  nextTask: createDist(distScss, cbCreateDist({
+    distScss,
+    nextTask: initSass
+  }))
+}));
