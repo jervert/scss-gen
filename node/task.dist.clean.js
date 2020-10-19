@@ -4,21 +4,26 @@ const log = require('fancy-log');
 const createDist = require('./task.dist.create');
 const { MESSAGE_CLEANED_DIST } = require('./constants');
 
-function cbClean(params) {
-  return function() {
-    log.info(MESSAGE_CLEANED_DIST);
-    params.nextTask();
-  }
+const { initSass } = require('./task.sass');
+
+function cbClean() {
+  log.info(MESSAGE_CLEANED_DIST);
+  createDist.then(({ message }) => {
+    log.info(message);
+    initSass();
+  }).catch(({ message }) => {
+    log.error(message);
+  });
 }
 
-function makeClean(dest, cb) {
+module.exports = function(nextTask = createDist) {
+  const dest = join(__dirname, 'dist/**/*');
   del(dest, {
     force: true
-  }).then(cb);
-}
-
-module.exports = function() {
-  makeClean(join(__dirname, 'dist/**/*'), cbClean({
-    nextTask: createDist
-  }));
+  }).then(function(contents) {
+    log.info('Deleted dist contents', contents);
+    cbClean();
+  }).catch(function() {
+    log.error('Cannot delete dist contents');
+  });
 }

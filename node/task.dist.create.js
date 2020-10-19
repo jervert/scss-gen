@@ -1,28 +1,24 @@
-const { mkdir } = require('fs');
+const { mkdirSync, existsSync } = require('fs');
 const { join } = require('path');
 const log = require('fancy-log');
-const { initSass } = require('./task.sass');
 const { MESSAGE_CREATED_DIR } = require('./constants');
 
-function cbCreateDist(params) {
-  return function(error) {
-    if (error) {
-      log.error(error);
+const distScss = join(__dirname, './dist/css');
+module.exports = new Promise(function(resolve, reject) {
+  if (!existsSync(distScss)) {
+    mkdirSync(distScss, { recursive: true });
+    if (existsSync(distScss)) {
+      resolve({
+        message: `${MESSAGE_CREATED_DIR}: ${distScss}`
+      });
     } else {
-      log.info(`${MESSAGE_CREATED_DIR}: ${params.distScss}`);
-      params.nextTask();
+      reject({
+        message: `Folder cannot be created: ${distScss}`
+      });
     }
+  } else {
+    resolve({
+      message: `Dir already exists: ${distScss}`
+    });
   }
-}
-
-function createDist(dest, cb) {
-  mkdir(dest, { recursive: true }, cb);
-}
-
-module.exports = function() {
-  const distScss = join(__dirname, './dist/css');
-  createDist(distScss, cbCreateDist({
-    distScss,
-    nextTask: initSass
-  }))
-}
+});
