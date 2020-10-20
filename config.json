@@ -1,7 +1,0 @@
-{
-  "scss": {
-    "src": "./src/scss/main.scss",
-    "dest": "./dist/css/main.css",
-    "watch": "./src/scss/**/*.scss"
-  }
-}

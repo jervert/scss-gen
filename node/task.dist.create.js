@@ -1,24 +1,47 @@
-const { mkdirSync, existsSync } = require('fs');
+const fs = require('fs');
 const { join } = require('path');
 const log = require('fancy-log');
+const taskSass = require('./task.sass');
 const { MESSAGE_CREATED_DIR } = require('./constants');
 
-const distScss = join(__dirname, './dist/css');
-module.exports = new Promise(function(resolve, reject) {
-  if (!existsSync(distScss)) {
-    mkdirSync(distScss, { recursive: true });
-    if (existsSync(distScss)) {
-      resolve({
-        message: `${MESSAGE_CREATED_DIR}: ${distScss}`
+const distScss = join(__dirname, '../dist/css');
+
+function createDist(resolve, reject) {
+  fs.access(distScss, fs.constants.F_OK, error => {
+    if (error) {
+      log.info(`Folder to be created: ${distScss}`);
+      fs.mkdir(distScss, { recursive: true }, error => {
+        if (error) {
+          reject({
+            message: `Folder cannot be created: ${distScss}. ${error}`
+          });
+        } else {
+          resolve({
+            message: `${MESSAGE_CREATED_DIR}: ${distScss}`
+          });
+        }
       });
     } else {
-      reject({
-        message: `Folder cannot be created: ${distScss}`
+      resolve({
+        message: `Dir already exists: ${distScss}`
       });
     }
-  } else {
-    resolve({
-      message: `Dir already exists: ${distScss}`
-    });
-  }
-});
+  });
+}
+
+function createResolved({ message }) {
+  log.info(message);
+  taskSass({
+    isFirst: true
+  });
+}
+
+function createRejected({ message }) {
+  log.error(message);
+}
+
+module.exports = function() {
+  new Promise(createDist)
+    .then(createResolved)
+    .catch(createRejected);
+}

@@ -1,3 +1,4 @@
+const { join } = require('path');
 const clean = require('./node/task.dist.clean');
 
-clean();
+clean(join(__dirname, 'dist/**/*'));
