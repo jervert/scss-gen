@@ -87,4 +87,9 @@ function watch() {
   }).on('all', watcher);
 }
 
-module.exports = taskSass;
+module.exports = {
+  taskSass,
+  test: {
+    buildCss
+  }
+};
