@@ -19,13 +19,6 @@ function writeSassResolve(params) {
   }
 }
 
-function writeSassReject(error, params) {
-  log.error(error);
-  notifier.notify(sassNotifyResult(
-    Object.assign({}, params, { isError: true })
-  ));
-}
-
 function writeSass(params) {
   return new Promise(function(resolve, reject) {
     writeFile(scss.dest, params.result.css, error => {
@@ -44,7 +37,7 @@ function buildCss(params = {}) {
       file: scss.src,
     }, function(error, result) {
       if (error) {
-        reject(error, params)
+        reject(error, params);
       } else {
         resolve(Object.assign({}, params, { result }));
       }
@@ -52,13 +45,7 @@ function buildCss(params = {}) {
   });
 }
 
-function buildResolved(params) {
-  writeSass(params)
-    .then(writeSassResolve)
-    .catch(writeSassReject);
-}
-
-function buildRejected(error, params) {
+function sassRejected(error, params) {
   log.error(TITLE_ERROR);
   log.error(error);
   notifier.notify(sassNotifyResult(
@@ -68,8 +55,9 @@ function buildRejected(error, params) {
 
 function taskSass(params = {}) {
   buildCss(params)
-    .then(buildResolved)
-    .catch(buildRejected);
+    .then(writeSass)
+    .then(writeSassResolve)
+    .catch(sassRejected);
 }
 
 function watcher(event, path) {
