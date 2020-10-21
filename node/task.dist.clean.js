@@ -1,11 +1,14 @@
 const del = require('del');
 const log = require('fancy-log');
-const createDist = require('./task.dist.create');
-const { MESSAGE_CLEANED_DIST, MESSAGE_NOT_CLEANED_DIST } = require('./constants');
+const { taskDistCreate } = require('./task.dist.create');
+const {
+  MESSAGE_CLEANED_DIST,
+  MESSAGE_NOT_CLEANED_DIST
+} = require('./constants');
 
 function cleanResolved(contents) {
   log.info(MESSAGE_CLEANED_DIST, contents);
-  createDist();
+  taskDistCreate();
 }
 
 function cleanRejected() {
@@ -18,4 +21,4 @@ module.exports = function(dest) {
   })
     .then(cleanResolved)
     .catch(cleanRejected);
-}
+};
