@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { join } = require('path');
 const log = require('fancy-log');
-const taskSass = require('./task.sass');
+const { taskSass } = require('./task.sass');
 const { MESSAGE_CREATED_DIR } = require('./constants');
 
 const distScss = join(__dirname, '../dist/css');
@@ -44,4 +44,4 @@ module.exports = function() {
   new Promise(createDist)
     .then(createResolved)
     .catch(createRejected);
-}
+};
