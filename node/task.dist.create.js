@@ -1,30 +1,28 @@
 const fs = require('fs');
-const { join } = require('path');
 const log = require('fancy-log');
 const { taskSass } = require('./task.sass');
-const { MESSAGE_CREATED_DIR } = require('./constants');
+const { MESSAGE_CREATED_DIR, MESSAGE_DIR_EXISTS } = require('./constants');
+const { target } = require('../config');
 
-const distScss = join(__dirname, '../dist/css');
-
-function createDist() {
+function distCreate() {
   return new Promise(function(resolve, reject) {
-    fs.access(distScss, fs.constants.F_OK, error => {
+    fs.access(target.css, fs.constants.F_OK, error => {
       if (error) {
-        log.info(`Folder to be created: ${distScss}`);
-        fs.mkdir(distScss, { recursive: true }, error => {
+        log.info(`Folder to be created: ${target.css}`);
+        fs.mkdir(target.css, { recursive: true }, error => {
           if (error) {
             reject({
-              message: `Folder cannot be created: ${distScss}. ${error}`
+              message: `Folder cannot be created: ${target.css}. ${error}`
             });
           } else {
             resolve({
-              message: `${MESSAGE_CREATED_DIR}: ${distScss}`
+              message: `${MESSAGE_CREATED_DIR}: ${target.css}`
             });
           }
         });
       } else {
         resolve({
-          message: `Dir already exists: ${distScss}`
+          message: `${MESSAGE_DIR_EXISTS}: ${target.css}`
         });
       }
     });
@@ -43,12 +41,14 @@ function createRejected({ message }) {
 }
 
 function taskDistCreate() {
-  createDist()
+  distCreate()
     .then(createResolved)
     .catch(createRejected);
 }
 
 module.exports = {
   taskDistCreate,
-  test: {}    
+  test: {
+    distCreate
+  }    
 };
