@@ -1,6 +1,8 @@
 {
     "globals": {
-        "__dirname": false
+        "__dirname": false,
+        "expect": false,
+        "test": false
     },
     "env": {
         "browser": true,

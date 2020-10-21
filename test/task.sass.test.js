@@ -1,23 +1,21 @@
 const { buildCss } = require('../node/task.sass').test;
 
-test('build css, first build', () => {
-  return buildCss({
+test('build css, first build', async () => {
+  const data = await buildCss({
     isFirst: true
-  }).then(data => {
-    expect(data).toEqual(expect.objectContaining({
-      isFirst: true,
-      result: expect.any(Object)
-    }));
   });
+  expect(data).toEqual(expect.objectContaining({
+    isFirst: true,
+    result: expect.any(Object)
+  }));
 });
 
-test('build css, not first build', () => {
-  return buildCss({
+test('build css, not first build', async () => {
+  const data = await buildCss({
     isFirst: false
-  }).then(data => {
-    expect(data).toEqual(expect.objectContaining({
-      isFirst: false,
-      result: expect.any(Object)
-    }));
   });
+  expect(data).toEqual(expect.objectContaining({
+    isFirst: false,
+    result: expect.any(Object)
+  }));
 });
