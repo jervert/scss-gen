@@ -25,7 +25,7 @@ function writeSass(params) {
       if (error) {
         reject(error, params);
       } else {
-        resolve(params);
+        resolve(Object.assign({}, params, {written: scss.dest}));
       }
     });
   }); 
@@ -78,6 +78,7 @@ function watch() {
 module.exports = {
   taskSass,
   test: {
-    buildCss
+    buildCss,
+    writeSass
   }
 };
