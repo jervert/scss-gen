@@ -20,7 +20,7 @@ function writeSassResolve(params) {
 }
 
 function setResult(values) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function(resolve) {
     let params = {};
     values.forEach(value => {
       params = Object.assign({}, params, value);
@@ -29,42 +29,32 @@ function setResult(values) {
   });
 }
 
+function writeBase(params) {
+  return function(source, target, result) {
+    return new Promise(function(resolve, reject) {
+      writeFile(target, source, error => {
+        if (error) {
+          reject(error, params);
+        } else {
+          log.info(`Generated: ${target}`);
+          resolve(result);
+        }
+      });
+    });
+  }
+}
+
 function writeSass(params) {
   const optimizedCss = new CleanCSS({
     sourceMap: true
   }).minify(params.result.css);
-  const writeDefault = new Promise(function(resolve, reject) {
-    writeFile(scss.dest, params.result.css, error => {
-      if (error) {
-        reject(error, params);
-      } else {
-        log.info(`Generated: ${scss.dest}`);
-        resolve({ written: scss.dest });
-      }
-    });
-  });
-  const writeMin = new Promise(function(resolve, reject) {
-    writeFile(scss.destMin, optimizedCss.styles, error => {
-      if (error) {
-        reject(error, params);
-      } else {
-        log.info(`Generated: ${scss.destMin}`);
-        resolve({ writtenMin: scss.destMin });
-      }
-    });
-  });
-  const writeMap = new Promise(function(resolve, reject) {
-    writeFile(scss.destMap, optimizedCss.styles, error => {
-      if (error) {
-        reject(error, params);
-      } else {
-        log.info(`Generated: ${scss.destMap}`);
-        resolve({ writtenMap: scss.destMap });
-      }
-    });
-  });
-
-  return Promise.all([params, writeDefault, writeMin, writeMap]);
+ 
+  return Promise.all([
+    params,
+    writeBase(params)(params.result.css, scss.dest, { written: scss.dest }),
+    writeBase(params)(optimizedCss.styles, scss.destMin, { writtenMin: scss.destMin }),
+    writeBase(params)(optimizedCss.styles, scss.destMap, { writtenMap: scss.destMap })
+  ]);
 }
 
 function buildCss(params = {}) {
