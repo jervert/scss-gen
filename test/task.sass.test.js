@@ -1,5 +1,5 @@
 const { scss } = require('../config');
-const { buildCss, writeSass } = require('../node/task.sass').test;
+const { buildCss, writeSass, setResult } = require('../node/task.sass').test;
 
 const CONFIG_IS_FIRST = {
   isFirst: true
@@ -25,19 +25,23 @@ test('build css, not first build', async () => {
 });
 
 test('write css, first build', async () => {
-  const data = await buildCss(CONFIG_IS_FIRST).then(writeSass);
+  const data = await buildCss(CONFIG_IS_FIRST).then(writeSass).then(setResult);
   expect(data).toEqual(expect.objectContaining({
     isFirst: true,
     result: expect.any(Object),
-    written: scss.dest
+    written: scss.dest,
+    writtenMin: scss.destMin,
+    writtenMap: scss.destMap
   }));
 });
 
 test('write css, not first build', async () => {
-  const data = await buildCss(CONFIG_IS_NOT_FIRST).then(writeSass);
+  const data = await buildCss(CONFIG_IS_NOT_FIRST).then(writeSass).then(setResult);
   expect(data).toEqual(expect.objectContaining({
     isFirst: false,
     result: expect.any(Object),
-    written: scss.dest
+    written: scss.dest,
+    writtenMin: scss.destMin,
+    writtenMap: scss.destMap
   }));
 });
