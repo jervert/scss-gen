@@ -2,7 +2,9 @@
     "globals": {
         "__dirname": false,
         "expect": false,
-        "test": false
+        "test": false,
+        "afterAll": false,
+        "beforeAll": false
     },
     "env": {
         "browser": true,
