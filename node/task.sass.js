@@ -51,9 +51,20 @@ function writeSass(params) {
  
   return Promise.all([
     params,
-    writeBase(params)(params.result.css, scss.dest, { written: scss.dest }),
-    writeBase(params)(optimizedCss.styles, scss.destMin, { writtenMin: scss.destMin }),
-    writeBase(params)(optimizedCss.styles, scss.destMap, { writtenMap: scss.destMap })
+    writeBase(params)(
+      params.result.css,
+      scss.dest,
+      { written: scss.dest }),
+    writeBase(params)(
+      optimizedCss.styles,
+      scss.destMin,
+      { writtenMin: scss.destMin }
+    ),
+    writeBase(params)(
+      optimizedCss.styles,
+      scss.destMap,
+      { writtenMap: scss.destMap }
+    )
   ]);
 }
 
@@ -71,20 +82,27 @@ function buildCss(params = {}) {
   });
 }
 
-function sassRejected(error, params) {
-  log.error(TITLE_ERROR);
-  log.error(error);
-  notifier.notify(sassNotifyResult(
-    Object.assign({}, params, { isError: true })
-  ));
-}
-
 function taskSass(params = {}) {
-  buildCss(params)
-    .then(writeSass)
-    .then(setResult)
-    .then(writeSassResolve)
-    .catch(sassRejected);
+  return function(promiseParams) {
+    params = Object.assign({}, promiseParams, params);
+    return new Promise(function(resolve, reject) {
+      buildCss(params)
+        .then(writeSass)
+        .then(setResult)
+        .then(function(params) {
+          writeSassResolve(params);
+          resolve();
+        })
+        .catch(function(error, params) {
+          log.error(TITLE_ERROR);
+          log.error(error);
+          notifier.notify(sassNotifyResult(
+            Object.assign({}, params, { isError: true })
+          ));
+          reject(error);
+        });
+    });
+  }
 }
 
 function watcher(event, path) {
