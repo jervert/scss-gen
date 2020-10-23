@@ -41,7 +41,7 @@ function writeBase(params) {
         }
       });
     });
-  }
+  };
 }
 
 function writeSass(params) {
@@ -102,7 +102,7 @@ function taskSass(params = {}) {
           reject(error);
         });
     });
-  }
+  };
 }
 
 function watcher(event, path) {
