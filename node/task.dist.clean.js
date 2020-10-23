@@ -6,19 +6,21 @@ const {
 } = require('./constants');
 
 module.exports = function(dest) {
-  return new Promise(function (resolve, reject) {
-    del(dest, {
-      force: true
-    })
-      .then(function(contents) {
-        log.info(MESSAGE_CLEANED_DIST, contents);
-        resolve({
-          clean: contents
-        });
+  return function() {
+    return new Promise(function (resolve, reject) {
+      del(dest, {
+        force: true
       })
-      .catch(function(error) {
-        log.error(MESSAGE_NOT_CLEANED_DIST);
-        reject(error);
-      });
-  });
+        .then(function(contents) {
+          log.info(MESSAGE_CLEANED_DIST, contents);
+          resolve({
+            clean: contents
+          });
+        })
+        .catch(function(error) {
+          log.error(MESSAGE_NOT_CLEANED_DIST);
+          reject(error);
+        });
+    });
+  };
 };
