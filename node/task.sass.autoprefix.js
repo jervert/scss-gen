@@ -7,7 +7,9 @@ const { scss } = require('../config');
 
 function taskSassAutoprefix(params = {}) {
   return new Promise(function(resolve, reject) {
-    postcss([ autoprefixer ]).process(params.basicResult.css)
+    postcss([ autoprefixer ]).process(params.basicResult.css, {
+      from: scss.dest
+    })
       .then(result => {
         result.warnings().forEach(warn => {
           log.info(warn.toString());
