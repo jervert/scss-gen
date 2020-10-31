@@ -6,6 +6,7 @@ const notifier = require('node-notifier');
 const { writeFile } = require('fs');
 const { scss } = require('../config');
 const sassNotifyResult = require('./task.sass.notify-result');
+const { taskSassAutoprefix } = require('./task.sass.autoprefix');
 const { TITLE_ERROR } = require('./constants');
 
 function writeSassResolve(params) {
@@ -40,6 +41,8 @@ function writeBase(params) {
           resolve(result);
         }
       });
+    }).catch(error => {
+      log.error(error);
     });
   };
 }
@@ -47,12 +50,12 @@ function writeBase(params) {
 function writeSass(params) {
   const optimizedCss = new CleanCSS({
     sourceMap: true
-  }).minify(params.result.css);
+  }).minify(params.prefixedResult.css);
  
   return Promise.all([
     params,
     writeBase(params)(
-      params.result.css,
+      params.prefixedResult,
       scss.dest,
       { written: scss.dest }),
     writeBase(params)(
@@ -76,7 +79,7 @@ function buildCss(params = {}) {
       if (error) {
         reject(error, params);
       } else {
-        resolve(Object.assign({}, params, { result }));
+        resolve(Object.assign({}, params, { basicResult: result }));
       }
     });
   });
@@ -87,6 +90,7 @@ function taskSass(params = {}) {
     params = Object.assign({}, promiseParams, params);
     return new Promise(function(resolve, reject) {
       buildCss(params)
+        .then(taskSassAutoprefix)
         .then(writeSass)
         .then(setResult)
         .then(function(params) {
@@ -125,6 +129,7 @@ module.exports = {
   test: {
     buildCss,
     writeSass,
-    setResult
+    setResult,
+    taskSassAutoprefix
   }
 };
