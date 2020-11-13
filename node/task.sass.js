@@ -1,6 +1,6 @@
 const sass = require('node-sass');
 const chokidar = require('chokidar');
-const CleanCSS = require('clean-css')
+const CleanCSS = require('clean-css');
 const log = require('fancy-log');
 const notifier = require('node-notifier');
 const { writeFile } = require('fs');
@@ -33,7 +33,7 @@ function setResult(values) {
 function writeBase(params) {
   return function(source, target, result) {
     return new Promise(function(resolve, reject) {
-      writeFile(target, source, error => {
+      writeFile(target, source, 'utf8', error => {
         if (error) {
           reject(error, params);
         } else {
@@ -47,24 +47,36 @@ function writeBase(params) {
   };
 }
 
+function optimizeCss(params) {
+  return new Promise(function(resolve, reject) {
+    new CleanCSS({
+      returnPromise: true,
+      sourceMap: true
+    })
+      .minify(params.prefixedResult.css)
+      .then(function (optimizedCss) {
+        resolve(Object.assign({}, params, { optimizedCss }));
+      })
+      .catch(function (error) {
+        reject(error, params);
+      });
+  });
+}
+
 function writeSass(params) {
-  const optimizedCss = new CleanCSS({
-    sourceMap: true
-  }).minify(params.prefixedResult.css);
- 
   return Promise.all([
     params,
     writeBase(params)(
-      params.prefixedResult,
+      params.prefixedResult.css,
       scss.dest,
       { written: scss.dest }),
     writeBase(params)(
-      optimizedCss.styles,
+      params.optimizedCss.styles,
       scss.destMin,
       { writtenMin: scss.destMin }
     ),
     writeBase(params)(
-      optimizedCss.styles,
+      params.optimizedCss.styles,
       scss.destMap,
       { writtenMap: scss.destMap }
     )
@@ -91,6 +103,7 @@ function taskSass(params = {}) {
     return new Promise(function(resolve, reject) {
       buildCss(params)
         .then(taskSassAutoprefix)
+        .then(optimizeCss)
         .then(writeSass)
         .then(setResult)
         .then(function(params) {
@@ -128,6 +141,7 @@ module.exports = {
   taskSass,
   test: {
     buildCss,
+    optimizeCss,
     writeSass,
     setResult,
     taskSassAutoprefix
