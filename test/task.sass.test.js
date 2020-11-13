@@ -3,6 +3,7 @@ const clean = require('../node/task.dist.clean');
 const distCreate = require('../node/task.dist.create');
 const {
   buildCss,
+  optimizeCss,
   writeSass,
   setResult,
   taskSassAutoprefix
@@ -41,7 +42,8 @@ test('build css, not first build', async () => {
 
 test('write css, first build', async () => {
   const data = await buildCss(CONFIG_IS_FIRST)
-    .then(taskSassAutoprefix)  
+    .then(taskSassAutoprefix)
+    .then(optimizeCss)
     .then(writeSass)
     .then(setResult);
   expect(data).toEqual(expect.objectContaining({
@@ -57,6 +59,7 @@ test('write css, first build', async () => {
 test('write css, not first build', async () => {
   const data = await buildCss(CONFIG_IS_NOT_FIRST)
     .then(taskSassAutoprefix)
+    .then(optimizeCss)
     .then(writeSass)
     .then(setResult);
   expect(data).toEqual(expect.objectContaining({
