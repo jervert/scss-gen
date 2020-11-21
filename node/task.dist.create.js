@@ -13,7 +13,7 @@ module.exports = function(params) {
             log.error(`Folder cannot be created: ${target.css}. ${error}`);
             reject(error);
           } else {
-            const message = `${MESSAGE_CREATED_DIR}: ${target.css}`
+            const message = `${MESSAGE_CREATED_DIR}: ${target.css}`;
             log.info(message);
             resolve(Object.assign({}, params, {
               create: message
