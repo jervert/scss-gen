@@ -1,9 +1,4 @@
 node_modules
 dist
 coverage
-.idea/workspace.xml
-.idea/vcs.xml
-.idea/scss-gen.iml
-.idea/modules.xml
-.idea/inspectionProfiles/Project_Default.xml
-.idea/codeStyles/codeStyleConfig.xml
+.idea/*
